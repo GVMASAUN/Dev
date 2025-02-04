@@ -1,0 +1,51 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "main" ]  # Trigger on push to the main branch
+  pull_request:
+    branches: [ "main" ]  # Trigger on pull request to the main branch
+  workflow_dispatch:  # Allows manual trigger from the Actions tab
+
+jobs:
+  commit_info:
+    # This job runs on the latest Ubuntu environment
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Fetch commit details for the latest commit
+      - name: Get Commit Information
+        run: |
+          echo "Fetching commit details..."
+
+          # Show the most recent commit hash and message
+          echo "Commit Hash: $(git log -1 --pretty=format:'%H')"
+          echo "Commit Author: $(git log -1 --pretty=format:'%an')"
+          echo "Commit Message: $(git log -1 --pretty=format:'%s')"
+
+      # Step 3: Show the files changed in the latest commit
+      - name: Show files changed in the latest commit
+        run: |
+          echo "Files changed in the latest commit:"
+          
+          # List the names of files changed between the most recent commit and the previous one
+          git diff --name-only HEAD~1 HEAD
+
+      # Step 4: Show the actual changes (diffs) made in the latest commit
+      - name: Show the diffs of the changes in the latest commit
+        run: |
+          echo "Showing actual changes (diffs) made in the latest commit..."
+          
+          # Show the diff (what was added or removed) between the latest commit and the previous commit
+          git diff HEAD~1 HEAD
+
+      # Optional: Add other tasks like testing or building your project
+      - name: Run a multi-line script
+        run: |
+          echo "This is a simple CI pipeline!"
+          echo "You can add steps to build, test, and deploy your project."
