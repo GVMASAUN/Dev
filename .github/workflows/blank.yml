@@ -1,22 +1,22 @@
 name: CI
 
-# Controls when the workflow will run
 on:
   push:
-    branches: [ "main" ]  # Trigger on push to the main branch
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]  # Trigger on pull request to the main branch
-  workflow_dispatch:  # Allows manual trigger from the Actions tab
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   commit_info:
-    # This job runs on the latest Ubuntu environment
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code from the repository
+      # Step 1: Checkout code from the repository (with fetch depth of 0 for full history)
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # This fetches the entire commit history, not just the latest commit
 
       # Step 2: Fetch commit details for the latest commit
       - name: Get Commit Information
@@ -28,13 +28,17 @@ jobs:
           echo "Commit Author: $(git log -1 --pretty=format:'%an')"
           echo "Commit Message: $(git log -1 --pretty=format:'%s')"
 
-      # Step 3: Show the files changed in the latest commit
+          # Optionally, show the last 3 commits
+          echo "Last 3 commits:"
+          git log -3 --pretty=format:"%H %an %s"
+
+      # Step 3: Show files changed in the latest commit
       - name: Show files changed in the latest commit
         run: |
           echo "Files changed in the latest commit:"
           
           # List the names of files changed between the most recent commit and the previous one
-          git diff --name-only HEAD~1 HEAD
+          git diff --name-only HEAD^ HEAD  # Use HEAD^ (equivalent to HEAD~1) to compare with previous commit
 
       # Step 4: Show the actual changes (diffs) made in the latest commit
       - name: Show the diffs of the changes in the latest commit
@@ -42,7 +46,7 @@ jobs:
           echo "Showing actual changes (diffs) made in the latest commit..."
           
           # Show the diff (what was added or removed) between the latest commit and the previous commit
-          git diff HEAD~1 HEAD
+          git diff HEAD^ HEAD  # Use HEAD^ (equivalent to HEAD~1) to compare with previous commit
 
       # Optional: Add other tasks like testing or building your project
       - name: Run a multi-line script
